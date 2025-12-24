@@ -1,0 +1,173 @@
+<Window x:Class="UserMonitorApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Мониторинг пользователя" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <TabControl>
+            <!-- Режим настройки -->
+            <TabItem Header="Настройки">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <GroupBox Header="Общие настройки" Margin="0,0,0,10">
+                            <StackPanel Margin="10">
+                                <CheckBox x:Name="EnableStatisticsCheckBox" Content="Включить статистику" IsChecked="True" Margin="0,5"/>
+                                <CheckBox x:Name="EnableModerationCheckBox" Content="Включить модерирование" Margin="0,5"/>
+                                <TextBlock Text="Путь для сохранения отчетов:" Margin="0,10,0,5"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="ReportPathTextBox" Grid.Column="0" 
+                                             Text="C:\UserMonitorReports" Margin="0,0,5,0"/>
+                                    <Button Content="Обзор..." Grid.Column="1" 
+                                            Click="BrowseReportPath_Click" Padding="10,5"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Запрещенные слова (для модерации)" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBox x:Name="ForbiddenWordsTextBox" Grid.Row="0" 
+                                         TextWrapping="Wrap" AcceptsReturn="True" 
+                                         VerticalScrollBarVisibility="Auto" Height="150"
+                                         Margin="5"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+                                    <Button Content="Загрузить из файла" 
+                                            Click="LoadForbiddenWords_Click" 
+                                            Margin="0,0,5,0" Padding="10,5"/>
+                                    <Button Content="Очистить" 
+                                            Click="ClearForbiddenWords_Click" 
+                                            Padding="10,5"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Запрещенные программы (для модерации)" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBox x:Name="ForbiddenProgramsTextBox" Grid.Row="0" 
+                                         TextWrapping="Wrap" AcceptsReturn="True" 
+                                         VerticalScrollBarVisibility="Auto" Height="150"
+                                         Margin="5"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+                                    <Button Content="Загрузить из файла" 
+                                            Click="LoadForbiddenPrograms_Click" 
+                                            Margin="0,0,5,0" Padding="10,5"/>
+                                    <Button Content="Очистить" 
+                                            Click="ClearForbiddenPrograms_Click" 
+                                            Padding="10,5"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+
+                        <Button Content="Сохранить настройки" 
+                                Click="SaveSettings_Click" 
+                                Padding="20,10" FontSize="14" FontWeight="Bold"
+                                HorizontalAlignment="Center" Margin="0,10"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Режим слежения -->
+            <TabItem Header="Слежение">
+                <StackPanel Margin="10">
+                    <GroupBox Header="Управление" Margin="0,0,0,10">
+                        <StackPanel Margin="10">
+                            <TextBlock x:Name="MonitoringStatusTextBlock" 
+                                      Text="Мониторинг не запущен" 
+                                      FontSize="14" FontWeight="Bold" 
+                                      Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button x:Name="StartMonitoringButton" Content="Запустить мониторинг" 
+                                        Click="StartMonitoring_Click" 
+                                        Padding="20,10" Margin="5" FontSize="14" FontWeight="Bold"/>
+                                <Button x:Name="StopMonitoringButton" Content="Остановить мониторинг" 
+                                        Click="StopMonitoring_Click" 
+                                        Padding="20,10" Margin="5" FontSize="14" FontWeight="Bold"
+                                        IsEnabled="False"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Статистика в реальном времени" Margin="0,0,0,10">
+                        <Grid Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock>
+                                    <Run Text="Нажатий клавиш: "/>
+                                    <Run x:Name="KeysPressedCountRun" Text="0" FontWeight="Bold"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Запущено процессов: "/>
+                                    <Run x:Name="ProcessesStartedCountRun" Text="0" FontWeight="Bold"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock>
+                                    <Run Text="Обнаружено запрещенных слов: "/>
+                                    <Run x:Name="ForbiddenWordsDetectedRun" Text="0" FontWeight="Bold" Foreground="Red"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Заблокировано процессов: "/>
+                                    <Run x:Name="BlockedProcessesCountRun" Text="0" FontWeight="Bold" Foreground="Red"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Header="Лог событий">
+                        <TextBox x:Name="MonitoringLogTextBox" 
+                                 IsReadOnly="True" 
+                                 VerticalScrollBarVisibility="Auto"
+                                 TextWrapping="Wrap"
+                                 Height="200"
+                                 Margin="5"/>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+
+            <!-- Режим отчетов -->
+            <TabItem Header="Отчеты">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Content="Обновить отчеты" 
+                                Click="RefreshReports_Click" 
+                                Padding="15,8" Margin="0,0,10,0"/>
+                        <Button Content="Открыть папку с отчетами" 
+                                Click="OpenReportsFolder_Click" 
+                                Padding="15,8"/>
+                    </StackPanel>
+
+                    <DataGrid x:Name="ReportsDataGrid" Grid.Row="1" 
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              SelectionChanged="ReportsDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Тип отчета" Binding="{Binding ReportType}" Width="150"/>
+                            <DataGridTextColumn Header="Дата создания" Binding="{Binding CreatedDate, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Width="180"/>
+                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
+

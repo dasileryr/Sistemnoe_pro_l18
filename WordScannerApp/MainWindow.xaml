@@ -1,0 +1,149 @@
+<Window x:Class="WordScannerApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Поиск запрещенных слов" Height="700" Width="900"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Запрещенные слова -->
+        <GroupBox Header="Запрещенные слова" Grid.Row="0" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="ForbiddenWordsTextBox" Grid.Column="0" 
+                         TextWrapping="Wrap" AcceptsReturn="True" 
+                         VerticalScrollBarVisibility="Auto" Height="100"
+                         Margin="5"/>
+                <StackPanel Grid.Column="1" Margin="5">
+                    <Button Content="Загрузить из файла" 
+                            Click="LoadWordsFromFile_Click" 
+                            Margin="0,0,0,5" Padding="10,5"/>
+                    <Button Content="Очистить" 
+                            Click="ClearWords_Click" 
+                            Padding="10,5"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- Выходная директория -->
+        <GroupBox Header="Выходная директория" Grid.Row="1" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="OutputDirectoryTextBox" Grid.Column="0" 
+                         Text="C:\ForbiddenWordsOutput" 
+                         Margin="5"/>
+                <Button Content="Обзор..." Grid.Column="1" 
+                        Click="BrowseOutputDirectory_Click" 
+                        Margin="5" Padding="10,5"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Расширения файлов -->
+        <GroupBox Header="Расширения файлов для поиска" Grid.Row="2" Margin="0,0,0,10">
+            <StackPanel Margin="5">
+                <CheckBox x:Name="TxtCheckBox" Content=".txt" IsChecked="True" Margin="0,2"/>
+                <CheckBox x:Name="DocCheckBox" Content=".doc, .docx" Margin="0,2"/>
+                <CheckBox x:Name="PdfCheckBox" Content=".pdf" Margin="0,2"/>
+                <CheckBox x:Name="HtmlCheckBox" Content=".html, .htm" Margin="0,2"/>
+                <CheckBox x:Name="AllCheckBox" Content="Все текстовые файлы" Margin="0,2"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Прогресс -->
+        <GroupBox Header="Прогресс" Grid.Row="3" Margin="0,0,0,10">
+            <StackPanel Margin="5">
+                <TextBlock x:Name="StatusTextBlock" Text="Готов к работе" Margin="0,0,0,5"/>
+                <ProgressBar x:Name="OverallProgressBar" Height="20" Margin="0,0,0,5"/>
+                <TextBlock x:Name="ProgressTextBlock" Text="0 / 0 файлов обработано" Margin="0,0,0,5"/>
+                <ProgressBar x:Name="FileProgressBar" Height="20" IsIndeterminate="True" Visibility="Collapsed"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Управление -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <Button x:Name="StartButton" Content="Старт" 
+                    Click="StartButton_Click" 
+                    Padding="20,10" Margin="5" FontSize="14" FontWeight="Bold"/>
+            <Button x:Name="PauseButton" Content="Приостановить" 
+                    Click="PauseButton_Click" 
+                    Padding="20,10" Margin="5" FontSize="14" IsEnabled="False"/>
+            <Button x:Name="ResumeButton" Content="Возобновить" 
+                    Click="ResumeButton_Click" 
+                    Padding="20,10" Margin="5" FontSize="14" IsEnabled="False"/>
+            <Button x:Name="StopButton" Content="Остановить" 
+                    Click="StopButton_Click" 
+                    Padding="20,10" Margin="5" FontSize="14" IsEnabled="False"/>
+        </StackPanel>
+
+        <!-- Статистика -->
+        <GroupBox Header="Статистика" Grid.Row="5" Margin="0,0,0,10">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock>
+                        <Run Text="Найдено файлов: "/>
+                        <Run x:Name="FoundFilesCountRun" Text="0" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="Обработано файлов: "/>
+                        <Run x:Name="ProcessedFilesCountRun" Text="0" FontWeight="Bold"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock>
+                        <Run Text="Всего замен: "/>
+                        <Run x:Name="TotalReplacementsRun" Text="0" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="Общий размер: "/>
+                        <Run x:Name="TotalSizeRun" Text="0 B" FontWeight="Bold"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- Результаты -->
+        <GroupBox Header="Результаты" Grid.Row="6" Margin="0,0,0,10">
+            <DataGrid x:Name="ResultsDataGrid" 
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True" 
+                      Height="150"
+                      Margin="5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Файл" Binding="{Binding FilePath}" Width="*"/>
+                    <DataGridTextColumn Header="Размер" Binding="{Binding FileSize, StringFormat='{}{0:N0} B'}" Width="100"/>
+                    <DataGridTextColumn Header="Замен" Binding="{Binding TotalReplacements}" Width="80"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <!-- Лог -->
+        <GroupBox Header="Лог операций" Grid.Row="8">
+            <TextBox x:Name="LogTextBox" 
+                     IsReadOnly="True" 
+                     VerticalScrollBarVisibility="Auto"
+                     TextWrapping="Wrap"
+                     Margin="5"/>
+        </GroupBox>
+    </Grid>
+</Window>
+
